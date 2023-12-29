@@ -119,7 +119,7 @@ def clients_handler(client_socket, name):
 
 def main():
     #the code to retrieve the data from the api commented for development and testing 
-    """
+    
     airport_code = input("Enter airport ICAO code: ")
 
     api_key = '97cb3a487d121f559d1dea7e9565fe33'
@@ -130,7 +130,7 @@ def main():
 
     with open("GA8.json", 'w') as file:
         json.dump(data, file, indent=4)
-"""
+
     #create the socket and start listening 
     server4 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server4.bind(('127.0.0.1', 9999))
