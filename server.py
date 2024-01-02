@@ -1,16 +1,19 @@
+"""Done BY:
+SALMAN ABDULLA ALSUMAIT  ID: 202108970
+ABDULLA EYAD A.LATIF     ID: 202102993
+ITNE352 - Group GA8 """ 
 import socket
 import threading
 import requests
 import json
 
-
-def send_option(client_socket, recv_option, name):
+def get_response(client_socket, recv_option, name):
     
     with open("GA8.json", 'r') as file:
         data = json.load(file)
         flights = data.get('data', [])
 
-    if recv_option.lower() == 'a':
+    if recv_option == 'a':
         print(f'client: {name} chose option: A. All Arrived Flights ')
         # Extract the required information for all arrived flights
         data = []
@@ -19,7 +22,7 @@ def send_option(client_socket, recv_option, name):
                 flight_info = {
                     'Flight IATA Code': flight['flight']['iata'],
                     'Departure Airport Name': flight['departure']['airport'],
-                    'Arrival Time': flight['arrival']['estimated'],
+                    'Arrival Time': flight['arrival']['actual'],
                     'Arrival Terminal Number': flight['arrival']['terminal'],
                     'Arrival Gate': flight['arrival']['gate']
                 }
@@ -29,7 +32,7 @@ def send_option(client_socket, recv_option, name):
         else:
             return "No Arrived Flights found."
        
-    elif recv_option.lower() == 'b':
+    elif recv_option == 'b':
         print(f'client: {name} chose option: B. All Delayed Flights ')
         # Extract the required information for all arrived flights
         data = []
@@ -50,9 +53,9 @@ def send_option(client_socket, recv_option, name):
         else:
             return "No Delayed Flights found."
 
-    elif recv_option.lower() == 'c':
+    elif recv_option == 'c':
         # Extract the required information for all flights from a specific airport
-        airport_code = client_socket.recv(1024).decode("ascii")
+        airport_code = client_socket.recv(1024).decode("ascii").strip()
         print(f'client: {name} chose option: C. All Flights From Airport {airport_code}')
         data = []
         for flight in flights:
@@ -73,7 +76,7 @@ def send_option(client_socket, recv_option, name):
             return f"Airport {airport_code} not found."
         
 
-    elif recv_option.lower() == 'd':
+    elif recv_option == 'd':
         flight_iata_code = client_socket.recv(1024).decode().strip()
         print(f'client: {name} chose option: D. Details of Flight Number {flight_iata_code}')
         data = []
@@ -97,7 +100,6 @@ def send_option(client_socket, recv_option, name):
         else:
             return f"Flight {flight_iata_code} not found."
 
-
 def clients_handler(client_socket, addr):
     try:
         #Receives the client name.
@@ -106,27 +108,27 @@ def clients_handler(client_socket, addr):
         while True:
             # to send the option
             recv_option = client_socket.recv(1024).decode('ascii')
-            response = send_option(client_socket, recv_option, name)
+            response = get_response(client_socket, recv_option, name)
             client_socket.sendall((response).encode('ascii'))   
     except :
         print(f"connection with {name} at address {addr} has been disconnected")
 
 def main():
-    
-    """airport_code = input("Enter the airport's ICAO code: ")
-
+    #for using the code with the same data in the provided JSON remove the hash before the 3 quotes below.
+    #'''
+    airport_code = input("Enter the airport's ICAO code: ")
     api_key = '97cb3a487d121f559d1dea7e9565fe33'
     url = f'http://api.aviationstack.com/v1/flights?access_key={api_key}&arr_icao={airport_code}&limit=100'
-
     response = requests.get(url)
     data = response.json()
 
     with open("GA8.json", 'w') as file:
-        json.dump(data, file, indent=4)"""
-        
+        json.dump(data, file, indent=4)
+    #'''
+         
     server4 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server4.bind(('127.0.0.1', 9999))
-    server4.listen()
+    server4.listen(5)
     print("Server listening on {}:{}".format('127.0.0.1', 9999))
 
     while True:
